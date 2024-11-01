@@ -15,7 +15,7 @@ export const addMessages = async (
         updatedAt: new Date(),
       },
     });
-    console.log("🚀 ~ file: addMessages.ts:18 ~ chat:", chat);
+    console.log(">>>> file: addMessages.ts:18 ~ chat:", chat);
     const messages = await prisma.message.create({
       data: {
         text,
@@ -24,6 +24,6 @@ export const addMessages = async (
         chat: { connect: { id: chatId } },
       },
     });
-    console.log("🚀 ~ file: getMessages.ts:16 ~ messages:", messages);
+    console.log(">>>> file: getMessages.ts:16 ~ messages:", messages);
   } catch (e) {}
 };

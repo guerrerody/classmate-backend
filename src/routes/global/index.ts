@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 const router = Router();
 const rootDir = path.resolve(__dirname, "../../../");
-console.log("🚀 ~ file: index.ts:6 ~ rootDir:", rootDir);
+console.log(">>>> file: index.ts:6 ~ rootDir:", rootDir);
 router.get("/", (req, res) => {
   res.status(200).json({
     msg: "server is up",

@@ -12,5 +12,5 @@ console.log(process.env.NODE_ENV);
 IO;
 
 app.listen(config.port, () => {
-  console.log("🚀 Server Started @:", config.port || 80);
+  console.log(">>>> Server Started @:", config.port || 80);
 });

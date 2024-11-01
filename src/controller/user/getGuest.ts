@@ -18,7 +18,7 @@ export const getGuest = async (req: any, res: Response, next: NextFunction) => {
       return res.json({ error: "error" });
     }
     const isFollowed = loggedInUser.followingIDs.includes(req.query.id);
-    console.log("🚀 ~ file: getGuest.ts:20 ~ getGuest ~ isFollowed:", isFollowed)
+    console.log(">>>> file: getGuest.ts:20 ~ getGuest ~ isFollowed:", isFollowed)
     const user = await prisma.user.findUnique({
       where: {
         id,

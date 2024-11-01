@@ -5,7 +5,7 @@ export default async function updateFollowerCounts(userId: string) {
     where: { following: { some: { id: userId } } },
   });
   console.log(
-    "🚀 ~ file: updateFollows.ts:7 ~ updateFollowerCounts ~ followersCount:",
+    ">>>> file: updateFollows.ts:7 ~ updateFollowerCounts ~ followersCount:",
     followersCount
   );
 
@@ -13,7 +13,7 @@ export default async function updateFollowerCounts(userId: string) {
     where: { followers: { some: { id: userId } } },
   });
   console.log(
-    "🚀 ~ file: updateFollows.ts:12 ~ updateFollowerCounts ~ followingCount:",
+    ">>>> file: updateFollows.ts:12 ~ updateFollowerCounts ~ followingCount:",
     followingCount
   );
 

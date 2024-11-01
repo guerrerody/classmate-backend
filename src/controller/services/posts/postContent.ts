@@ -35,7 +35,7 @@ export const postContent = async (
       width: number;
     };
   } = req.body;
-  console.log("body🚀", req.body);
+  console.log(">>>> body: ", req.body);
   const audioUriUpdated = () => {
     if (audioUri) {
       if (audioUri.startsWith("http")) {
@@ -68,7 +68,7 @@ export const postContent = async (
       if (data) {
         const { error, html, result, response } = data;
         if (result) {
-          console.log("🚀 ~ file: postContent.ts:60 ~ result:", result);
+          console.log(">>>> file: postContent.ts:60 ~ result:", result);
           //@ts-ignore
 
           const results = result.ogImage

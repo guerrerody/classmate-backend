@@ -71,7 +71,7 @@ export const getSinglePost = async (
         },
       },
     });
-    console.log("🚀 ~ file: getMyPosts.ts:55 ~ posts:", posts);
+    console.log(">>>> file: getMyPosts.ts:55 ~ posts:", posts);
     if (posts) {
       res.status(200).json({ posts });
     }

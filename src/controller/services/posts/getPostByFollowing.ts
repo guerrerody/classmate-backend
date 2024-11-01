@@ -109,7 +109,7 @@ export const getPostByFollowing = async (
 
       if (postsByFollowing) {
         console.log(
-          "🚀 ~ file: getPostByFollowing.ts:86 ~ postsByFollowing:",
+          ">>>> file: getPostByFollowing.ts:86 ~ postsByFollowing:",
           postsByFollowing
         );
         return res.status(200).json({ posts: postsByFollowing });

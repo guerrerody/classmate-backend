@@ -6,7 +6,7 @@ import { getMessageList } from "../../controller/chat/getMessageList";
 
 const router = Router();
 router.get("/", (req) => {
-  console.log("🚀 ~ file: index.ts:6 ~ router.get ~ req:", req);
+  console.log(">>>> file: index.ts:6 ~ router.get ~ req:", req);
 });
 router.post("/startChat", startChat);
 router.get("/get-all-chats", getChatList)

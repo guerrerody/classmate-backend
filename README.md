@@ -32,7 +32,7 @@ Check out the React Native App - [Classmate React Native App](https://github.com
 5. Run `npx prisma generate`
 6. Run the server:
    - Running in Development - `npm run dev:prod`
-   - Running in Production - `npm run start`, for production, a couple of environment variables need to be set up: "SPACES_NAME, SPACES_SECRET, SPACES_ENDPOINT, SPACES_KEY" which are required for "AWS S3".
+   - Running in Production - `npm run start`, for production, a couple of environment variables need to be set up: "SPACES_REGION, SPACES_ENDPOINT, SPACES_NAME, SPACES_SECRET, SPACES_KEY" which are required for "AWS S3".
 7. The server will be running on `http://localhost:8080` by default.
 
 ## API Endpoints

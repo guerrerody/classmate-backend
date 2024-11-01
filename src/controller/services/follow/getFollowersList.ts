@@ -8,7 +8,7 @@ export const getFollowersList = async (
 ) => {
   const { id } = req.user;
   const { take, skip } = req.query;
-  console.log("🚀 ~ file: getFollowersList.ts:11 ~ skip:", skip, take);
+  console.log(">>>> file: getFollowersList.ts:11 ~ skip:", skip, take);
 
   try {
     const followers = await prisma.user.findUnique({

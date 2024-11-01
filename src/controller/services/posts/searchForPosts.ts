@@ -7,7 +7,7 @@ export const searchForPosts = async (
   next: NextFunction
 ) => {
   const { q } = req.query;
-  console.log("🚀 ~ file: searchForPosts.ts:10 ~ q:", q);
+  console.log(">>>> file: searchForPosts.ts:10 ~ q:", q);
 
   try {
     const posts = await prisma.post.findMany({

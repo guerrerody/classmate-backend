@@ -13,7 +13,7 @@ export const ErrorHandler = (
       case "P2002":
         const keyName = error.meta?.target as string;
         const formattedKeyName = keyName.split("_")[1];
-        console.log("🚀 ~ file: HandleErrors.ts:17 ~ keyName:", keyName);
+        console.log(">>>> file: HandleErrors.ts:17 ~ keyName:", keyName);
         res.status(400).json({ message: `${formattedKeyName} already exists` });
         break;
       case "P2010":

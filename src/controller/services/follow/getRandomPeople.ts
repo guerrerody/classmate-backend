@@ -38,7 +38,7 @@ export const getRandomFollowers = async (
         const isFollowed = loggedInUser.followingIDs.includes(user.id);
         return { ...user, isFollowed };
       });
-      //console.log("🚀 ~ file: getRandomPeople.ts:41 ~ usersWithFollowStatus ~ usersWithFollowStatus:", loggedInUser.followingIDs)
+      //console.log(">>>> file: getRandomPeople.ts:41 ~ usersWithFollowStatus ~ usersWithFollowStatus:", loggedInUser.followingIDs)
 
       updatedUsers = usersWithFollowStatus;
     }

@@ -9,7 +9,7 @@ export const unfollowUser = async (
   next: NextFunction
 ) => {
   const { id } = req.user;
-  console.log("🚀 ~ file: followUser.ts:7 ~ followUser ~ id:", id);
+  console.log(">>>> file: followUser.ts:7 ~ followUser ~ id:", id);
 
   try {
     const userWithFollower = await prisma.user.update({

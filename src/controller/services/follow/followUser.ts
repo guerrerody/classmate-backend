@@ -14,7 +14,7 @@ export const followUser = async (
   next: NextFunction
 ) => {
   const { id, email } = req.user;
-  console.log("🚀 ~ file: followUser.ts:7 ~ followUser ~ id:", id);
+  console.log(">>>> file: followUser.ts:7 ~ followUser ~ id:", id);
   function isMultipleOf10(number: number) {
     return number % 10 === 0;
   }

@@ -27,7 +27,7 @@ export const followStatusEmit = (id: string, socket: Socket) => {
       );
 
       console.log(
-        "🚀",
+        ">>>> ",
         change?.updateDescription?.updatedFields?.followingCount
       );
     });

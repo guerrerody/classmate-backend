@@ -12,7 +12,7 @@ export const followUser = async () => {
       },
     });
     console.log(
-      "🚀 ~ file: followUser.ts:21 ~ followUser ~ userWithFollower:",
+      ">>>> file: followUser.ts:21 ~ followUser ~ userWithFollower:",
       userWithFollower
     );
   } catch (e) {

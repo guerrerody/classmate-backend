@@ -1,8 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import sharp from "sharp";
 import { s3Config } from "../../config/multer/digitalOcean";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { readFileSync, unlink } from "fs";
+
+const SPACES_PATH_PROFILE = `profile/`;
 
 export const profilePhotoUpload = (
   req: any,
@@ -10,10 +12,7 @@ export const profilePhotoUpload = (
   next: NextFunction
 ) => {
   const photo = req?.file;
-  console.log(
-    "🚀 ~ file: profilePhotoUpload.ts:5 ~ profilePhotoUpload ~ photo:",
-    photo
-  );
+  console.log(">>>> file: profilePhotoUpload.ts ~ profilePhotoUpload ~ photo:", photo);
   if (photo?.mimetype === "image/gif") {
     sharp(`./uploads/${photo?.filename}`, { animated: true })
       .gif()
@@ -21,7 +20,6 @@ export const profilePhotoUpload = (
       .toFile(
         `./uploads/${photo?.filename.split(".")[0]}-sm.gif`,
         async (err, info) => {
-          console.log(info);
           if (!info) {
             return;
           }
@@ -29,38 +27,31 @@ export const profilePhotoUpload = (
             `./uploads/${photo?.filename.split(".")[0]}-sm.gif`
           );
 
-          console.log(
-            "🚀 ~ file: profilePhotoUpload.ts:24 ~ filetoUpload:",
-            filetoUpload
-          );
+          console.log(">>>> file: profilePhotoUpload.ts ~ filetoUpload:", filetoUpload);
+          const keyFile = `${SPACES_PATH_PROFILE}${photo?.filename.split(".")[0]}-sm.gif`
           const fileResults: any = await s3Config.send(
             new PutObjectCommand({
               Bucket: process.env.SPACES_NAME as string,
-              Key: `${photo?.filename.split(".")[0]}-sm.gif`,
+              Key: keyFile,
               Body: filetoUpload,
               ContentType: "image/gif",
            
             })
           );
-          console.log(
-            "🚀 ~ file: profilePhotoUpload.ts:46 ~ fileRes:",
-            fileResults
-          );
+          console.log(">>>> file: profilePhotoUpload.ts ~ fileRes:", fileResults);
           if (fileResults) {
-            req.imageUri = `https://${process.env.SPACES_ENDPOINT_WITHOUT_HTTPS}/${
-              photo?.filename.split(".")[0]
-            }-sm.gif`;
+            req.imageUri = `${process.env.SPACES_ENDPOINT}/${keyFile}`;
             unlink(
               `./uploads/${photo?.filename.split(".")[0]}-sm.gif`,
               (err) => {
                 if (err) {
-                  console.log("failed to delete");
+                  console.log("failed to delete from file system");
                 }
               }
             );
             unlink(`./uploads/${photo?.filename}`, (err) => {
               if (err) {
-                console.log(err,"failed to delete");
+                console.log(err,"failed to delete from file system");
               }
             });
             return next();
@@ -74,41 +65,36 @@ export const profilePhotoUpload = (
       .toFile(
         `./uploads/${photo?.filename.split(".")[0]}-sm.jpg`,
         async (err, info) => {
-          console.log(info);
           if (!info) {
             return;
           }
           const filetoUpload = readFileSync(
             `./uploads/${photo?.filename.split(".")[0]}-sm.jpg`
           );
-          console.log(
-            "🚀 ~ file: profilePhotoUpload.ts:24 ~ filetoUpload:",
-            filetoUpload
-          );
+          console.log(">>>> file: profilePhotoUpload.ts ~ filetoUpload:", filetoUpload);
+          const keyFile = `${SPACES_PATH_PROFILE}${photo?.filename.split(".")[0]}-sm.jpg`
           const fileResults: any = await s3Config.send(
             new PutObjectCommand({
               Bucket: process.env.SPACES_NAME as string,
-              Key: `${photo?.filename.split(".")[0]}-sm.jpg`,
+              Key: keyFile,
               Body: filetoUpload,
               ContentType: "image/jpeg",
             })
           );
-          console.log("ioizik", fileResults)
+          console.log(">>>> file: profilePhotoUpload.ts ~ fileRes: ", fileResults);
           if (fileResults) {
-            req.imageUri = `https://${process.env.SPACES_ENDPOINT_WITHOUT_HTTPS}/${
-              photo?.filename.split(".")[0]
-            }-sm.jpg`;
+            req.imageUri = `${process.env.SPACES_ENDPOINT}/${keyFile}`;
             unlink(
               `./uploads/${photo?.filename.split(".")[0]}-sm.jpg`,
               (err) => {
                 if (err) {
-                  console.log("failed to delete");
+                  console.log("failed to delete from file system");
                 }
               }
             );
             unlink(`./uploads/${photo?.filename}`, (err) => {
               if (err) {
-                console.log("failed to delete");
+                console.log("failed to delete from file system");
               }
             });
             return next();

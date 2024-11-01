@@ -65,7 +65,7 @@ export const blockJWT = async (req: any, res: Response, next: NextFunction) => {
   console.log(bearer);
   const tokenFromSession = req.session.token;
   console.log(
-    "🚀 ~ file: index.ts:68 ~ blockJWT ~ tokenFromSession:",
+    ">>>> file: index.ts:68 ~ blockJWT ~ tokenFromSession:",
     tokenFromSession
   );
   if (!tokenFromSession) {

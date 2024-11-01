@@ -3,8 +3,8 @@ import prisma from "../../../lib/prisma/init";
 
 export const like = async (req: any, res: Response, next: NextFunction) => {
   const { id }: { id: string } = req.query;
-  console.log("🚀 ~ file: likePost.ts:6 ~ like ~ like:");
-  console.log("🚀 ~ file: likePost.ts:6 ~ like ~ id:", id);
+  console.log(">>>> file: likePost.ts:6 ~ like ~ like:");
+  console.log(">>>> file: likePost.ts:6 ~ like ~ id:", id);
 
   try {
     const user = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ export const like = async (req: any, res: Response, next: NextFunction) => {
         },
       },
     });
-    console.log("🚀 ~ file: likePost.ts:20 ~ like ~ user:", user);
+    console.log(">>>> file: likePost.ts:20 ~ like ~ user:", user);
 
     if (!user) {
       console.log("yes");
@@ -37,7 +37,7 @@ export const like = async (req: any, res: Response, next: NextFunction) => {
         },
       });
       console.log(
-        "🚀 ~ file: likePost.ts:39 ~ like ~ likeToDelete:",
+        ">>>> file: likePost.ts:39 ~ like ~ likeToDelete:",
         likeToDelete
       );
 

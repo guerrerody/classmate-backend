@@ -1,5 +1,6 @@
 import merge from "lodash.merge";
 import * as dotenv from 'dotenv'
+
 dotenv.config()
 
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
@@ -22,4 +23,4 @@ export default merge({
     db: process.env.DATABASE_URL,
     jwt: process.env.SECRET,
   },
-},envConfig);
+}, envConfig);

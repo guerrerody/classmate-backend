@@ -16,7 +16,7 @@ export const postComment = async (
         userId: req.user.id,
       },
     });
-    console.log("🚀 ~ file: postComment.ts:19 ~ commentPost:", commentPost)
+    console.log(">>>> file: postComment.ts:19 ~ commentPost:", commentPost)
     if (comment) return res.json({ msg: "commented" });
   } catch (e) {
     next(e);

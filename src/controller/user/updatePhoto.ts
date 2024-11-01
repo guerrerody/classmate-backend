@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../../config/env";
 import prisma from "../../lib/prisma/init";
+
 export const updatePhoto = async (
   req: any,
   res: Response,
   next: NextFunction
 ) => {
-  console.log("🚀 ~ file: postPhoto.ts:4 ~ postPhoto ~ req:", req.file);
+  console.log(">>>> file: updatePhoto.ts:4 ~ updatePhoto ~ req:", req.file);
   try {
     if (config.stage === "production") {
       const photos = await prisma.user.update({

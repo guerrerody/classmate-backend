@@ -16,7 +16,7 @@ export const saveNotificationId = async (
       },
     });
     console.log(
-      "🚀 ~ file: saveNotificationId.ts:18 ~ notificationId:",
+      ">>>> file: saveNotificationId.ts:18 ~ notificationId:",
       notificationId
     );
     if (notificationId) {
