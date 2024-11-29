@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
-import { userCollection } from "../../lib/mongodb/init";
 import { Socket } from "socket.io";
+
+import { userCollection } from "../../lib/mongodb/init";
 
 export const followStatusEmit = (id: string, socket: Socket) => {
   try {
@@ -14,7 +15,6 @@ export const followStatusEmit = (id: string, socket: Socket) => {
 
     changeStream.on("change", (change: any) => {
       if (change.updateDescription?.updatedFields?.followingCount) {
-        //console.log(change); // Change object
         socket.emit(
           "following",
           change?.updateDescription?.updatedFields?.followingCount
@@ -31,5 +31,5 @@ export const followStatusEmit = (id: string, socket: Socket) => {
         change?.updateDescription?.updatedFields?.followingCount
       );
     });
-  } catch (e) {}
+  } catch (e) { }
 };

@@ -1,18 +1,18 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
+
 export const getSinglePost = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.query;
+  const id = req.query.id as string;
   try {
-    const posts = await prisma.post.findUnique({
-      where: {
-        id,
-      },
+    const post = await prisma.post.findUnique({
+      where: { id },
       select: {
-        like: {
+        likes: {
           select: {
             userId: true,
           },
@@ -35,8 +35,7 @@ export const getSinglePost = async (
         photoUri: true,
         videoViews: true,
         userId: true,
-
-        repostUser: {
+        repostUsers: {
           select: {
             id: true,
           },
@@ -44,7 +43,6 @@ export const getSinglePost = async (
             id: req.user.id,
           },
         },
-
         user: {
           select: {
             id: true,
@@ -65,15 +63,18 @@ export const getSinglePost = async (
         },
         _count: {
           select: {
-            like: true,
+            likes: true,
             comments: true,
           },
         },
       },
     });
-    console.log(">>>> file: getMyPosts.ts:55 ~ posts:", posts);
-    if (posts) {
-      res.status(200).json({ posts });
+    if (post) {
+      const formattedPost = {
+        ...post,
+        videoViews: post.videoViews ? post.videoViews.toString() : null, // videoViews is BigInt
+      };
+      return res.status(200).json({ posts: formattedPost });
     }
   } catch (e) {
     next(e);

@@ -1,8 +1,9 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../lib/prisma/init";
 
 export const saveNotificationId = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -15,10 +16,7 @@ export const saveNotificationId = async (
         notificationId: req.body.notificationId,
       },
     });
-    console.log(
-      ">>>> file: saveNotificationId.ts:18 ~ notificationId:",
-      notificationId
-    );
+    console.log(">>>> file: saveNotificationId.ts ~ notificationId: ", notificationId);
     if (notificationId) {
       return res.json({ msg: "notificationId saved" });
     }

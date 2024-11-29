@@ -1,4 +1,3 @@
-import { NextFunction, Response } from "express";
 import prisma from "../../lib/prisma/init";
 
 export const startChatSocket = async (

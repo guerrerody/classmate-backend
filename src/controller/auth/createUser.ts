@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../lib/prisma/init";
 import { createHashedPassword } from "../../middleware/auth";
 
@@ -12,11 +13,30 @@ export async function createUser(
     email,
     password,
     userName,
-  }: { name: string; email: string; password: string; userName: string } =
-    req.body;
+  }: { name: string; email: string; password: string; userName: string } = req.body;
 
-  const formattedUserName = userName.toLowerCase();
+  const formattedUserName = userName.trim().toLowerCase();
   try {
+
+    // Validate if the email already exists
+    const existingEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingEmail) {
+      return res.status(401).json({ msg: "Email already in use" });
+    }
+
+    // Validate if the username already exists
+    const existingUserName = await prisma.user.findUnique({
+      where: { userName: formattedUserName },
+    });
+
+    if (existingUserName) {
+      return res.status(401).json({ msg: "Username already in use" });
+    }
+
+
     const user = await prisma.user.create({
       data: {
         name,
@@ -30,14 +50,7 @@ export async function createUser(
       return res.status(200).json({ msg: "Account created" });
     }
     return res.status(400).json({ msg: "error" });
-  } catch (e: any) {
-    next(e);
-    // if (e?.meta?.target === "User_email_key") {
-    //   return res.status(401).json({ msg: "Email exists" });
-    // }
-    // if (e?.meta?.target === "User_userName_key") {
-    //   return res.status(401).json({ msg: "UserName exists" });
-    // }
-    // return res.status(400).json({ msg: e });
+  } catch (error: any) {
+    next(error);
   }
 }

@@ -1,22 +1,21 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const getFollowingList = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.user;
-  const { take, skip } = req.query;
+  const take = Number(req.query.take) || 10; // Default value: 10
+  const skip = Number(req.query.skip) || 0;  // Default value: 0
 
   try {
-    const following = await prisma.user.findUnique({
-      where: {
-        id,
-      },
-
+    const followingData = await prisma.user.findUnique({
+      where: { id },
       select: {
-        following: {
+        followings: {
           select: {
             id: true,
             name: true,
@@ -24,14 +23,15 @@ export const getFollowingList = async (
             imageUri: true,
             verified: true,
           },
-          take: Number(take),
-          skip: Number(skip),
+          take,
+          skip,
         },
       },
     });
-    if (following) {
-      return res.status(200).json(following.following);
+    if (!followingData) {
+      return res.status(404).json({ msg: "User not found" });
     }
+    return res.status(200).json(followingData.followings || []);
   } catch (e) {
     next(e);
   }

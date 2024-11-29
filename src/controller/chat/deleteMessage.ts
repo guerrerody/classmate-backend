@@ -5,7 +5,6 @@ export const deleteMessage = async (id: string, authUserId: string) => {
     const message = await prisma.message.delete({
       where: {
         id,
-        
       },
     });
     if (message) {

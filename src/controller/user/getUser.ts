@@ -1,8 +1,9 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
+
 import prisma from "../../lib/prisma/init";
 
-export const getUser = async (req: any, res: Response, next: NextFunction) => {
-  const { id } = req?.user;
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.user.id;
 
   try {
     const user = await prisma.user.findUnique({
@@ -17,7 +18,7 @@ export const getUser = async (req: any, res: Response, next: NextFunction) => {
         followersCount: true,
         followingCount: true,
         email: true,
-        following: true,
+        followings: true,
         verified: true,
         imageUri: true,
         emailIsVerified: true,

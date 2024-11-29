@@ -19,7 +19,7 @@ export const addPhoto = async (
         updatedAt: new Date(),
       },
     });
-    console.log(">>>> file: addMessages.ts:18 ~ chat:", chat);
+    console.log(">>>> file: addMessages.ts ~ chat:", chat);
     const messages = await prisma.message.create({
       data: {
         id,
@@ -29,18 +29,18 @@ export const addPhoto = async (
         photo:
           photo?.height && photo?.uri && photo?.width
             ? {
-                create: {
-                  imageHeight: photo.height,
-                  imageUri: photo.uri,
-                  imageWidth: photo.width,
-                },
-              }
+              create: {
+                imageHeight: photo.height,
+                imageUri: photo.uri,
+                imageWidth: photo.width,
+              },
+            }
             : undefined,
         chat: {
           connect: { id: chatId },
         },
       },
     });
-    console.log(">>>> file: getMessages.ts:16 ~ messages:", messages);
-  } catch (e) {}
+    console.log(">>>> file: getMessages.ts ~ messages:", messages);
+  } catch (e) { }
 };

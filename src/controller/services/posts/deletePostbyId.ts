@@ -1,7 +1,8 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
-export const deletePostById = async (req: any, res: Response, next: NextFunction) => {
+export const deletePostById = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.user;
 
   try {

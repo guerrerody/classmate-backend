@@ -1,8 +1,9 @@
-import { NextFunction, Response, Router } from "express";
+import { NextFunction, Response, Request, Router } from "express";
+
 import { getUser } from "../../controller/user/getUser";
 import { getFollows } from "../../controller/user/getFollows";
 import config from "../../config/env";
-import { upload, uploadOcean } from "../../config/multer";
+import { upload } from "../../config/multer";
 import { updatePhoto } from "../../controller/user/updatePhoto";
 import { getGuest } from "../../controller/user/getGuest";
 import { saveNotificationId } from "../../controller/user/saveNotificationId";
@@ -25,7 +26,7 @@ const router = Router();
 router.get("/get-user", getUser);
 router.get("/get-guest", getGuest);
 router.get("/get-follows", getFollows);
-router.get("/token-valid", (req: any, res: Response, next: NextFunction) => {
+router.get("/token-valid", (req: Request, res: Response, next: NextFunction) => {
   res.json({ msg: true });
 });
 router.get("/get-notifications", getNotifications);
@@ -61,4 +62,5 @@ router.get(
 router.get("/logout", logout);
 router.put("/update-data", updateDataValidator, handleErrors, changeData);
 router.delete("/delete-account", deleteAccountValidator, handleErrors, deleteAccount);
+
 export default router;

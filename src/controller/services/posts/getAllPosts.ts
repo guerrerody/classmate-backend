@@ -1,18 +1,19 @@
-import { like } from "./likePost";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../../lib/prisma/init";
-import { NextFunction, Request, Response } from "express";
 
 export const getAllPosts = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log("my user id is", req.user.id);
-  const { take, skip } = req.query;
+  const take = Number(req.query.take) || 10; // Default value: 10
+  const skip = Number(req.query.skip) || 0;  // Default value: 0
+
   try {
     const posts = await prisma.post.findMany({
       select: {
-        like: {
+        likes: {
           select: {
             userId: true,
           },
@@ -21,14 +22,13 @@ export const getAllPosts = async (
           },
         },
         photo: {
-          select:{
-            id:true,
-            imageUri:true,
-            imageHeight:true,
-            imageWidth:true,
+          select: {
+            id: true,
+            imageUri: true,
+            imageHeight: true,
+            imageWidth: true,
           }
         },
-        
         link: {
           select: {
             id: true,
@@ -49,9 +49,7 @@ export const getAllPosts = async (
         videoViews: true,
         userId: true,
         videoThumbnail: true,
-        
-
-        repostUser: {
+        repostUsers: {
           select: {
             id: true,
           },
@@ -59,7 +57,6 @@ export const getAllPosts = async (
             id: req.user.id,
           },
         },
-
         user: {
           select: {
             id: true,
@@ -71,25 +68,25 @@ export const getAllPosts = async (
         },
         _count: {
           select: {
-            like: true,
+            likes: true,
             comments: true,
-            repostUser: true,
+            repostUsers: true,
           },
         },
       },
-      orderBy: [
-        {
-          id: "desc",
-        },
+      orderBy: [{ id: "desc" },
       ],
-      take: Number(take),
-      skip: Number(skip),
+      take,
+      skip,
     });
-
+    
     if (posts) {
-      return res.status(200).json({ posts });
+      const formattedPosts = posts.map(post => ({
+        ...post,
+        videoViews: post.videoViews ? post.videoViews.toString() : null, // videoViews is BigInt
+      }));
+      return res.status(200).json({ posts: formattedPosts });
     }
-
     throw new Error("Error in trying get posts");
   } catch (e) {
     next(e);

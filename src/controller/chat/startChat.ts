@@ -1,8 +1,9 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../lib/prisma/init";
 
 export const startChat = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

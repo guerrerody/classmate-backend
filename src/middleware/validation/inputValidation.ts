@@ -1,4 +1,4 @@
-import { body, query, param, oneOf } from "express-validator";
+import { body, query } from "express-validator";
 
 export const signupValidation = [
   body("name")
@@ -109,10 +109,12 @@ export const followValidator = [
 export const searchValidator = [
   query("q").exists().isString().withMessage("query cannot be empty"),
 ];
+
 export const getPostsValidator = [
   query("take").exists().isNumeric().withMessage("produce posts to take"),
   query("skip").exists().isNumeric().withMessage("produce skip to take"),
 ];
+
 export const likeValidator = [
   query("id").exists().isMongoId().withMessage("Not valid Id"),
 ];
@@ -138,17 +140,17 @@ export const followerFollowingValidator = [
 export const updateDataValidator = [
   body("password").exists().isString().withMessage("invalid password"),
   body(["userName", "newPassword", "name"]).custom((value, { req }) => {
-    console.log(req.body);
-    if (req.body.userName && !req.body.name && !req.body.newPassword) {
-      return true;
-    } else if (!req.body.userName && req.body.name && !req.body.newPassword) {
-      return true;
-    } else if (!req.body.userName && !req.body.name && req.body.newPassword) {
+    const { userName, newPassword, name } = req.body;
+
+    // Validar si exactamente uno de los campos está presente
+    const fieldsProvided = [!!userName, !!newPassword, !!name].filter(Boolean).length;
+    if (fieldsProvided === 1) {
       return true;
     }
-    throw new Error("Either userName | newPassword | name is needed");
+    throw new Error("Exactly one of userName, newPassword, or name is required");
   }),
 ];
+
 export const deleteAccountValidator = [
   body("password").exists().isString().withMessage("invalid password"),
 ];

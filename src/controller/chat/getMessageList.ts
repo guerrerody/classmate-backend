@@ -1,20 +1,19 @@
-import { NextFunction, Response, response } from "express";
-import { CustomRequest } from "../../types/request";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../lib/prisma/init";
 
 export const getMessageList = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const chatList = await prisma.chat.findUnique({
       where: {
-        id: req.query.id,
+        id: req.query.id as string,
       },
       select: {
         id: true,
-
         users: {
           select: {
             userName: true,

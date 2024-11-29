@@ -1,20 +1,22 @@
 "use strict";
+
 import express from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
+import http from "http";
+import helmet from "helmet";
+import fs from "fs";
+import path from "path";
+import session from "express-session";
+
+import { errorHandler } from "./controller/error/errorHandler";
 import { blockJWT, protect } from "./middleware/auth";
 import globalRouter from "./routes/global";
 import authRouter from "./routes/auth";
 import services from "./routes/services";
-import { ErrorHandler } from "./controller/error/ErrorHandler";
-import user from "./routes/user";
-import http from "http";
-import helmet from "helmet";
 import chat from "./routes/chat";
-import fs from "fs";
-import path from "path";
-import session from "express-session";
+import user from "./routes/user";
 
 const app = express();
 
@@ -31,9 +33,7 @@ app.use(sessionMiddleWare);
 
 app.use(cors());
 app.use(helmet());
-var accessLogStream = fs.createWriteStream(path.join("./", "access.log"), {
-  flags: "a",
-});
+const accessLogStream = fs.createWriteStream(path.join("./", "access.log"), { flags: "a" });
 
 // setup the logger
 app.use(morgan("combined", { stream: accessLogStream }));
@@ -48,5 +48,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/services", blockJWT, protect, services);
 app.use("/api/user", blockJWT, protect, user);
 app.use("/api/chat", blockJWT, protect, chat);
-app.use(ErrorHandler);
+
+app.use(errorHandler);
+
 export default server;

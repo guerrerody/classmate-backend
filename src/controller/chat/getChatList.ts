@@ -1,9 +1,9 @@
-import { NextFunction, Response, response } from "express";
-import { CustomRequest } from "../../types/request";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../lib/prisma/init";
 
 export const getChatList = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -18,7 +18,6 @@ export const getChatList = async (
       },
       select: {
         id: true,
-
         users: {
           select: {
             userName: true,
@@ -56,9 +55,7 @@ export const getChatList = async (
       },
     });
     if (chatList) {
-      res.status(200).json({
-        chatList,
-      });
+      res.status(200).json({ chatList });
     }
   } catch (e) {
     next(e);

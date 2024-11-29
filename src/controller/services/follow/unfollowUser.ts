@@ -1,45 +1,51 @@
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../../lib/prisma/init";
 import updateFollowerCounts from "../../../modules/socket/updateFollows";
-import { User } from ".prisma/client";
-import { NextFunction, Response } from "express";
 
 export const unfollowUser = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.user;
-  console.log(">>>> file: followUser.ts:7 ~ followUser ~ id:", id);
+  const userId = req.user.id; // Current user ID
+  const unfollowId = req.query.id as string; // ID of the user to unfollow
+
+  console.log(">>>> file: unfollowUser.ts ~ unfollowUser ~ userId: ", userId);
+  console.log(">>>> file: unfollowUser.ts ~ unfollowUser ~ unfollowId: ", unfollowId);
+
+  // Validate req.query.id
+  if (!unfollowId || typeof unfollowId !== "string") {
+    return res.status(400).json({ msg: "Invalid or missing 'id' parameter" });
+  }
 
   try {
     const userWithFollower = await prisma.user.update({
-      where: {
-        id,
-      },
+      where: { id: userId },
       data: {
-        following: {
+        followings: {
           disconnect: {
-            id: req.query?.id,
+            id: unfollowId,
           },
         },
       },
     });
 
     if (userWithFollower) {
-      updateFollowerCounts(req.user.id)
-        .then(() => console.log("Follower counts updated"))
-        .catch((error) =>
-          console.error("Error updating follower counts:", error)
-        );
-      updateFollowerCounts(req.query?.id)
-        .then(() => console.log("Follower counts updated"))
-        .catch((error) =>
-          console.error("Error updating follower counts:", error)
-        );
+      const results = await Promise.allSettled([
+        updateFollowerCounts(userId),
+        updateFollowerCounts(unfollowId),
+      ]);
+      // Log the results of follower updates
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          console.log(`Update follower counts for user ${index === 0 ? userId : unfollowId} succeeded`);
+        } else {
+          console.error(`Update follower counts for user ${index === 0 ? userId : unfollowId} failed: `, result.reason);
+        }
+      });
     }
-    return res.status(200).json({
-      msg: "unfollowed",
-    });
+    return res.status(200).json({ msg: "unfollowed" });
   } catch (e) {
     next(e);
   }

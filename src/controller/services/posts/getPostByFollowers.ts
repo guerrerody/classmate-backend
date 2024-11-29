@@ -1,20 +1,21 @@
-import prisma from "../../../lib/prisma/init";
 import { NextFunction, Request, Response } from "express";
 
+import prisma from "../../../lib/prisma/init";
+
 export const getAllPosts = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const {id}= req.user
+  const { id } = req.user
   try {
     const posts = await prisma.user.findMany({
-      where:{
+      where: {
         id
       },
-      select:{
-        following:{
-         
+      select: {
+        followings: {
+
         }
       }
     })

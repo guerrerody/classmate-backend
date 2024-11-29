@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../lib/prisma/init";
-import {
-  compareHashedPassword,
-  createHashedPassword,
-} from "../../middleware/auth";
+
+import { compareHashedPassword, createHashedPassword } from "../../middleware/auth";
 
 export const changeData = async (
   req: Request,
@@ -11,7 +10,6 @@ export const changeData = async (
   next: NextFunction
 ) => {
   try {
-    //@ts-ignore
     const { id } = req.user;
     const { password, userName, newPassword, name } = req.body;
 

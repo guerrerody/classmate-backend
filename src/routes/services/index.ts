@@ -1,5 +1,4 @@
 import {
-  uploadOcean,
   uploadOceanAudio,
   uploadOceanVideo,
 } from "./../../config/multer";

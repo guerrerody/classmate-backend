@@ -1,40 +1,31 @@
-import { Socket, Server } from "socket.io";
-import app from "../../app";
+import { Server } from "socket.io";
+import Expo from "expo-server-sdk";
 import jwt from "jsonwebtoken";
-import { userCollection } from "../../lib/mongodb/init";
-import { ChangeStream, ObjectId } from "mongodb";
 
+import app, { sessionMiddleWare } from "../../app";
 import { startChatSocket } from "../../controller/chat/startChatSocket";
-
 import { deleteMessage } from "../../controller/chat/deleteMessage";
 import { addPhoto } from "../../controller/chat/addPhoto";
-
 import { newMessage } from "./newMessage";
 import { onlineState } from "../onlineUsers";
 import { followStatusEmit } from "./followStatus";
-import { sessionMiddleWare } from "../../app";
 import { getReceiverNotificationToken } from "../../controller/chat/getReceiverNotificationToken";
-import Expo from "expo-server-sdk";
 import expo from "../../lib/expo/init";
 
 const IO = new Server(app, { cookie: true });
 IO.engine.use(sessionMiddleWare);
 
 IO.use((socket, next) => {
-  //@ts-ignore
-  console.log(">>>> ", socket.handshake.headers);
+  console.log(">>>> Socket handshake headers: ", socket.handshake.headers);
 
   const token = socket.handshake?.auth?.token;
 
-  console.log(
-    ">>>> file: socket.ts:17 ~ IO.use ~ token:",
-    socket.handshake?.auth
-  );
+  console.log(">>>> file: socket.ts ~ IO.use ~ token: ", socket.handshake?.auth);
   if (!token) {
     return next(new Error("Not authorized"));
   }
-  const user: any = jwt.verify(token, process.env.SECRET || "");
-  console.log(">>>> file: socket.ts:33 ~ IO.use ~ user:", user);
+  const user: any = jwt.verify(token, process.env.SECRET ?? "");
+  console.log(">>>> file: socket.ts ~ IO.use ~ user: ", user);
 
   if (user) {
     socket.data.userId = user.id;
@@ -73,15 +64,15 @@ IO.on("connection", async (socket) => {
     try {
       socket.join(receiverId);
       const chat: any = await startChatSocket(id, receiverId);
-      console.log(">>>> file: socket.ts:102 ~ socket.on ~ id:", id);
+      console.log(">>>> file: socket.ts ~ socket.on ~ id: ", id);
       if (chat) {
         IO.to(receiverId).emit("newChat", chat);
       }
-    } catch (e) {}
+    } catch (e) { }
   });
 
   socket.on("chat", async (id: string[]) => {
-    console.log(">>>> file: socket.ts:73 ~ socket.on ~ id:", id);
+    console.log(">>>> file: socket.ts ~ socket.on ~ id: ", id);
     socket.join(id);
 
     //IO.to(id).emit("isOnline", { id, isOnline: true });
@@ -94,7 +85,7 @@ IO.on("connection", async (socket) => {
   );
   socket.on("newPhoto", async (data) => {
     const onlineUsers = onlineState.getValues();
-    console.log(">>>> file: socket.ts:76 ~ socket.on ~ data:", data);
+    console.log(">>>> file: socket.ts ~ socket.on ~ data: ", data);
     IO.to(data.chatId).emit("message", {
       message: {
         sender: data.message.sender,
@@ -111,16 +102,15 @@ IO.on("connection", async (socket) => {
     });
     socket.emit("sent", true);
     addPhoto(data.message.photo, data.chatId, data.id, id)
-      .then((e) => {})
-      .catch((e) => {});
+      .then((e) => { })
+      .catch((e) => { });
 
-      getReceiverNotificationToken(data.chatId, id)
+    getReceiverNotificationToken(data.chatId, id)
       .then((r: any) => {
-        console.log(">>>> file: newMessage.ts:26 ~ .then ~ r:", r)
+        console.log(">>>> file: newMessage.ts ~ .then ~ r: ", r)
         if (onlineUsers.includes(r.userId)) {
           return;
         }
-        console.log(">>>> file: socket.ts:129 ~ .then ~ r:", r);
         if (!Expo.isExpoPushToken(r.notificationId)) {
           return;
         }
@@ -129,11 +119,11 @@ IO.on("connection", async (socket) => {
             to: r.notificationId,
             sound: "default",
             badge: 1,
-            mutableContent:true,
+            mutableContent: true,
             title: `@${userName}`,
             body: `📷 sent a photo`,
             subtitle: "sent a photo",
-            categoryId:"message",
+            categoryId: "message",
             data: {
               chatId: data.chatId,
               url: `classmate-lab3://messages/${data.chatId}`,
@@ -144,7 +134,7 @@ IO.on("connection", async (socket) => {
       .catch((e) => console.log(e));
   });
   socket.on("deleteMessage", async (messageId) => {
-    console.log(">>>> file: socket.ts:124 ~ socket.on ~ messageId:", messageId);
+    console.log(">>>> file: socket.ts ~ socket.on ~ messageId: ", messageId);
     deleteMessage(messageId, id)
       .then((e) => {
         console.log(e);
@@ -154,16 +144,13 @@ IO.on("connection", async (socket) => {
       });
   });
   socket.on("initChat", (id) => {
-    console.log(">>>> file: socket.ts:142 ~ socket.on ~ id:", id);
+    console.log(">>>> file: socket.ts ~ socket.on ~ id: ", id);
     socket.join(id);
     socket.emit("initChat", { id });
   });
   socket.on("isTyping", async (chatId, isTyping) => {
     IO.to(chatId).emit("isTyping", { id, isTyping });
-    console.log(">>>> file: socket.ts:83 ~ socket.on ~ isTyping:", {
-      id,
-      isTyping,
-    });
+    console.log(">>>> file: socket.ts ~ socket.on ~ isTyping: ", { id, isTyping });
   });
   socket.on("away", () => {
     console.log(`${id} is now away`);

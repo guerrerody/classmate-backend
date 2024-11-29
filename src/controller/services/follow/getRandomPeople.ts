@@ -1,11 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const getRandomFollowers = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const currentUserId = req.user?.id;
+
+  if (!currentUserId) {
+    return res.status(400).json({ msg: "Invalid user ID" });
+  }
   try {
     const allUsers = await prisma.user.findMany({
       orderBy: { id: "desc" },
@@ -20,10 +26,10 @@ export const getRandomFollowers = async (
     let uniqueNumbers: Array<number> = [];
     const loggedInUser = await prisma.user.findUnique({
       where: {
-        id: req.user?.id,
+        id: currentUserId,
       },
       select: {
-        followingIDs: true,
+        followingIds: true,
       },
     });
     let updatedUsers: Array<{
@@ -35,11 +41,9 @@ export const getRandomFollowers = async (
 
     if (loggedInUser) {
       const usersWithFollowStatus = allUsers.map((user) => {
-        const isFollowed = loggedInUser.followingIDs.includes(user.id);
+        const isFollowed = loggedInUser.followingIds.includes(user.id);
         return { ...user, isFollowed };
       });
-      //console.log(">>>> file: getRandomPeople.ts:41 ~ usersWithFollowStatus ~ usersWithFollowStatus:", loggedInUser.followingIDs)
-
       updatedUsers = usersWithFollowStatus;
     }
 
@@ -65,7 +69,7 @@ export const getRandomFollowers = async (
       );
       randomPeople.push(...filteredPeople);
     }
-  
+
     return res.status(200).json({ people: randomPeople });
   } catch (e) {
     next(e);

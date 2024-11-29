@@ -1,111 +1,84 @@
-import { query } from "express-validator";
+import { NextFunction, Response, Request } from "express";
+import Expo from "expo-server-sdk";
+
 import prisma from "../../../lib/prisma/init";
 import updateFollowerCounts from "../../../modules/socket/updateFollows";
-import { User } from "./../../../../node_modules/.prisma/client/index.d";
-import { NextFunction, Response } from "express";
-import Expo from "expo-server-sdk";
 import expo from "../../../lib/expo/init";
 import { handleNotifications } from "../../../modules/handleNotifications";
-import { text } from "body-parser";
 
 export const followUser = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id, email } = req.user;
-  console.log(">>>> file: followUser.ts:7 ~ followUser ~ id:", id);
-  function isMultipleOf10(number: number) {
-    return number % 10 === 0;
+  const followId = req.query.id as string; // User ID to follow
+
+  console.log(">>>> file: followUser.ts ~ followUser ~ id: ", id);
+  if (!followId || typeof followId !== "string") {
+    return res.status(400).json({ msg: "Invalid or missing 'id' parameter" });
   }
-  if (id === req.query.id) {
+
+  if (id === followId) {
     return res.status(200).json({ msg: "can't follow self" });
   }
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        followingIDs: true,
-        notificationId: true,
-      },
-    });
+    const [user, followedUser] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id },
+        select: { followingIds: true, notificationId: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: followId },
+        select: { followingIds: true, notificationId: true },
+      }),
+    ]);
 
-    const followedUser = await prisma.user.findUnique({
-      where: {
-        id: req.query.id,
-      },
-      select: {
-        followingIDs: true,
-        notificationId: true,
-      },
-    });
-
-    console.log("includes id", user?.followingIDs.includes(req.query.id));
-    if (user?.followingIDs.includes(req.query.id)) {
-      const userWithUnFollow = await prisma.user.update({
-        where: {
-          id,
-        },
+    if (user?.followingIds.includes(followId)) {
+      await prisma.user.update({
+        where: { id },
         data: {
-          following: {
+          followings: {
             disconnect: {
-              id: req.query?.id,
+              id: followId,
             },
           },
         },
       });
 
-      if (userWithUnFollow) {
-        const userFollow = updateFollowerCounts(req.user.id);
+      await Promise.allSettled([
+        updateFollowerCounts(id),
+        updateFollowerCounts(followId),
+      ]);
 
-        const guestFollow = updateFollowerCounts(req.query?.id);
-        Promise.all([userFollow, guestFollow])
-          .then((values) => {
-            return res.status(200).json({
-              msg: "unfollowed",
-            });
-          })
-          .catch((e) => {
-            return res.status(200).json({
-              msg: "unfollowed",
-            });
-          });
-      }
-      return;
+      return res.status(200).json({ msg: "unfollowed" });
     } else {
-      const userWithFollower = await prisma.user.update({
-        where: {
-          id,
-        },
+      await prisma.user.update({
+        where: { id },
         data: {
-          following: {
+          followings: {
             connect: {
-              id: req.query?.id,
+              id: followId,
             },
           },
         },
       });
 
-      if (userWithFollower) {
-        handleNotifications(
-          `@${email} just followed you`,
-          req.query.id,
-          "Follow",
-          undefined,
-          undefined,
-          id
-        );
-        if (
-          isMultipleOf10((followedUser?.followingIDs?.length || 0) + 1) ||
-          (followedUser?.followingIDs?.length || 0) <= 9
-        ) {
-          if (!Expo.isExpoPushToken(followedUser?.notificationId)) {
-            return;
-          }
-          console.log("reached this point", followedUser?.notificationId);
-          expo.sendPushNotificationsAsync([
+      handleNotifications(
+        `@${email} just followed you`,
+        followId,
+        "Follow",
+        undefined,
+        undefined,
+        id
+      );
+      // Sends push notification if followings is less than 9 or multiples of 10
+      if (
+        (followedUser?.followingIds?.length || 0) + 1 <= 9 ||
+        ((followedUser?.followingIds?.length || 0) + 1) % 10 === 0
+      ) {
+        if (Expo.isExpoPushToken(followedUser?.notificationId)) {
+          await expo.sendPushNotificationsAsync([
             {
               to: followedUser?.notificationId as string,
               sound: "default",
@@ -115,21 +88,14 @@ export const followUser = async (
             },
           ]);
         }
-        const userFollow = updateFollowerCounts(req.user.id);
-
-        const guestFollow = updateFollowerCounts(req.query?.id);
-        Promise.all([userFollow, guestFollow])
-          .then((values) => {
-            return res.status(200).json({
-              msg: "followed",
-            });
-          })
-          .catch((e) => {
-            return res.status(200).json({
-              msg: "followed",
-            });
-          });
       }
+
+      await Promise.allSettled([
+        updateFollowerCounts(id),
+        updateFollowerCounts(followId),
+      ]);
+
+      return res.status(200).json({ msg: "followed" });
     }
   } catch (e) {
     next(e);

@@ -1,13 +1,13 @@
-import { NextFunction } from "express";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+
 import prisma from "../../lib/prisma/init";
+
 export const getNotifications = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    console.log(req.user.id, "hjhj");
     const notifications = await prisma.notification.findMany({
       where: {
         userId: req.user.id,

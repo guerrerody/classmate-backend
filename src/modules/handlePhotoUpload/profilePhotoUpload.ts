@@ -1,18 +1,19 @@
-import { NextFunction, Response } from "express";
-import sharp from "sharp";
-import { s3Config } from "../../config/multer/digitalOcean";
+import { NextFunction, Response, Request } from "express";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { readFileSync, unlink } from "fs";
+import sharp from "sharp";
+
+import { s3Config } from "../../config/multer/digitalOcean";
 
 const SPACES_PATH_PROFILE = `profile/`;
 
 export const profilePhotoUpload = (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const photo = req?.file;
-  console.log(">>>> file: profilePhotoUpload.ts ~ profilePhotoUpload ~ photo:", photo);
+  console.log(">>>> file: profilePhotoUpload.ts ~ profilePhotoUpload ~ photo: ", photo);
   if (photo?.mimetype === "image/gif") {
     sharp(`./uploads/${photo?.filename}`, { animated: true })
       .gif()
@@ -35,10 +36,10 @@ export const profilePhotoUpload = (
               Key: keyFile,
               Body: filetoUpload,
               ContentType: "image/gif",
-           
+
             })
           );
-          console.log(">>>> file: profilePhotoUpload.ts ~ fileRes:", fileResults);
+          console.log(">>>> file: profilePhotoUpload.ts ~ fileResults: ", fileResults);
           if (fileResults) {
             req.imageUri = `${process.env.SPACES_ENDPOINT}/${keyFile}`;
             unlink(
@@ -51,7 +52,7 @@ export const profilePhotoUpload = (
             );
             unlink(`./uploads/${photo?.filename}`, (err) => {
               if (err) {
-                console.log(err,"failed to delete from file system");
+                console.log(err, "failed to delete from file system");
               }
             });
             return next();
@@ -71,7 +72,7 @@ export const profilePhotoUpload = (
           const filetoUpload = readFileSync(
             `./uploads/${photo?.filename.split(".")[0]}-sm.jpg`
           );
-          console.log(">>>> file: profilePhotoUpload.ts ~ filetoUpload:", filetoUpload);
+          console.log(">>>> file: profilePhotoUpload.ts ~ filetoUpload: ", filetoUpload);
           const keyFile = `${SPACES_PATH_PROFILE}${photo?.filename.split(".")[0]}-sm.jpg`
           const fileResults: any = await s3Config.send(
             new PutObjectCommand({

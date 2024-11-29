@@ -1,9 +1,10 @@
+import { Request } from "express";
 import multer from "multer";
+import multerS3 from "multer-s3";
 import path from "path";
 import fs from "fs";
 import { v4 as uuid } from "uuid";
-import { Request } from "express";
-import multerS3 from "multer-s3";
+
 import { SpacesBucketName, s3Config } from "./digitalOcean";
 import config from "../env";
 
@@ -29,12 +30,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = function (
-  req: any,
+  req: Request,
   file: Express.Multer.File,
   cb: Function
 ) {
   console.log(file);
-
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
@@ -43,12 +43,11 @@ const fileFilter = function (
 };
 
 const fileFilterVideo = function (
-  req: any,
+  req: Request,
   file: Express.Multer.File,
   cb: Function
 ) {
   console.log(file);
-
   if (file.mimetype === "video/mp4") {
     cb(null, true);
   } else {
@@ -57,12 +56,11 @@ const fileFilterVideo = function (
 };
 
 const fileFilterAudio = function (
-  req: any,
+  req: Request,
   file: Express.Multer.File,
   cb: Function
 ) {
   console.log(file);
-
   if (file.mimetype.startsWith("audio/")) {
     cb(null, true);
   } else {
@@ -96,7 +94,7 @@ export const uploadOcean =
     storage: multerS3({
       s3: s3Config,
       bucket: SpacesBucketName,
-   
+
       key: function (request: Request, file, cb) {
         cb(null, uuid().replaceAll("-", "") + path.extname(file.originalname));
       },
@@ -111,7 +109,7 @@ export const uploadOceanAudio =
     storage: multerS3({
       s3: s3Config,
       bucket: SpacesBucketName,
-      
+
       key: function (request: Request, file, cb) {
         cb(null, uuid().replaceAll("-", "") + path.extname(file.originalname));
       },
@@ -126,7 +124,7 @@ export const uploadOceanVideo =
     storage: multerS3({
       s3: s3Config,
       bucket: SpacesBucketName,
-    
+
       key: function (request: Request, file, cb) {
         cb(null, uuid().replaceAll("-", "") + path.extname(file.originalname));
       },

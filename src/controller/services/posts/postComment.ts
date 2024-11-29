@@ -1,13 +1,13 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const postComment = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { comment, id } = req.body;
-
   try {
     const commentPost = await prisma.comment.create({
       data: {
@@ -16,8 +16,10 @@ export const postComment = async (
         userId: req.user.id,
       },
     });
-    console.log(">>>> file: postComment.ts:19 ~ commentPost:", commentPost)
-    if (comment) return res.json({ msg: "commented" });
+    console.log(">>>> file: postComment.ts ~ commentPost:", commentPost)
+    if (comment) {
+      return res.json({ msg: "commented" });
+    }
   } catch (e) {
     next(e);
   }

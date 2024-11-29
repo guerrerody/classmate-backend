@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../lib/prisma/init";
 import { compareHashedPassword } from "../../middleware/auth";
 
@@ -11,7 +12,6 @@ export const deleteAccount = async (
     const { password } = req.body;
     const userAccount = await prisma.user.findUnique({
       where: {
-        //@ts-ignore
         id: req.user.id,
       },
       select: {
@@ -25,7 +25,6 @@ export const deleteAccount = async (
     }
     const user = await prisma.user.delete({
       where: {
-        //@ts-ignore
         id: req.user.id,
       },
     });

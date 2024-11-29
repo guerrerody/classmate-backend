@@ -1,17 +1,20 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const getPostByFollowing = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.user;
-  const { take, skip } = req.query;
+  const take = Number(req.query.take) || 10; // Default value: 10
+  const skip = Number(req.query.skip) || 0;  // Default value: 0
+
   try {
     const followedUserIds = await prisma.user.findUnique({
       where: { id },
-      select: { followingIDs: true },
+      select: { followingIds: true },
     });
 
     if (followedUserIds) {
@@ -20,28 +23,27 @@ export const getPostByFollowing = async (
           OR: [
             {
               userId: {
-                in: followedUserIds.followingIDs,
+                in: followedUserIds.followingIds,
               },
             },
             {
-              repostUserId: {
-                hasSome: followedUserIds.followingIDs,
+              repostUserIds: {
+                hasSome: followedUserIds.followingIds,
               },
             },
             {
-              like: {
+              likes: {
                 some: {
                   userId: {
-                    in: followedUserIds.followingIDs,
+                    in: followedUserIds.followingIds,
                   },
                 },
               },
             },
           ],
         },
-
         select: {
-          like: {
+          likes: {
             select: {
               userId: true,
             },
@@ -65,7 +67,7 @@ export const getPostByFollowing = async (
           photoUri: true,
           videoViews: true,
           userId: true,
-          repostUser: {
+          repostUsers: {
             select: {
               id: true,
             },
@@ -83,36 +85,32 @@ export const getPostByFollowing = async (
             },
           },
           photo: {
-            select:{
-              id:true,
-              imageUri:true,
-              imageHeight:true,
-              imageWidth:true,
+            select: {
+              id: true,
+              imageUri: true,
+              imageHeight: true,
+              imageWidth: true,
             }
           },
           _count: {
             select: {
-              like: true,
+              likes: true,
               comments: true,
-              repostUser: true,
+              repostUsers: true,
             },
           },
         },
-        orderBy: [
-          {
-            id: "desc",
-          },
-        ],
-        take: Number(take),
-        skip: Number(skip),
+        orderBy: [{ id: "desc" }],
+        take,
+        skip,
       });
 
       if (postsByFollowing) {
-        console.log(
-          ">>>> file: getPostByFollowing.ts:86 ~ postsByFollowing:",
-          postsByFollowing
-        );
-        return res.status(200).json({ posts: postsByFollowing });
+        const formattedPosts = postsByFollowing.map(post => ({
+          ...post,
+          videoViews: post.videoViews ? post.videoViews.toString() : null, // videoViews is BigInt
+        }));
+        return res.status(200).json({ posts: formattedPosts });
       }
     }
     return res.status(400).json({ msg: "Bad Request" });

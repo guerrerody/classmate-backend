@@ -3,17 +3,11 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-process.env.NODE_ENV = process.env.NODE_ENV || "development";
+process.env.NODE_ENV = process.env.NODE_ENV ?? "development";
 
-const stage = process.env.STAGE || "local";
+const stage = process.env.STAGE ?? "local";
 
-let envConfig;
-
-if (stage === "production") {
-  envConfig = require("./prod").default;
-} else {
-  envConfig = require("./local").default;
-}
+const envConfig = (stage === "production") ? require("./prod").default : require("./local").default;
 
 export default merge({
   stage,

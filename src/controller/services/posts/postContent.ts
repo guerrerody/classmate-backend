@@ -1,12 +1,13 @@
-import { NextFunction, Response } from "express";
-import prisma from "../../../lib/prisma/init";
+import { NextFunction, Response, Request } from "express";
 import validator from "validator";
 import ogs from "open-graph-scraper";
+
+import prisma from "../../../lib/prisma/init";
 import expo from "../../../lib/expo/init";
 import { handleNotificationsForPosts } from "../../../modules/handleNotifications/forPosts";
 
 export const postContent = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -68,8 +69,7 @@ export const postContent = async (
       if (data) {
         const { error, html, result, response } = data;
         if (result) {
-          console.log(">>>> file: postContent.ts:60 ~ result:", result);
-          //@ts-ignore
+          console.log(">>>> file: postContent.ts ~ result:", result);
 
           const results = result.ogImage
             ? result?.ogImage?.length >= 1
@@ -113,8 +113,7 @@ export const postContent = async (
             for (let i in signedInUser?.followers) {
               expo.sendPushNotificationsAsync([
                 {
-                  to: signedInUser?.followers[Number(i)]
-                    .notificationId as string,
+                  to: signedInUser?.followers[Number(i)].notificationId as string,
                   sound: "default",
                   badge: 1,
                   mutableContent: true,
@@ -160,8 +159,7 @@ export const postContent = async (
             for (let i in signedInUser?.followers) {
               expo.sendPushNotificationsAsync([
                 {
-                  to: signedInUser?.followers[Number(i)]
-                    .notificationId as string,
+                  to: signedInUser?.followers[Number(i)].notificationId as string,
                   sound: "default",
                   badge: 1,
                   mutableContent: true,
@@ -242,7 +240,7 @@ export const postContent = async (
           signedInUser?.followers,
           post.id
         ).then((e) => {
-          console.log(e);
+          console.log("Notification result: ", e);
         });
         return res.json({ msg: "posted" });
       }

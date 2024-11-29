@@ -1,6 +1,4 @@
 import prisma from "../../../lib/prisma/init";
-import { User } from "./../../../../node_modules/.prisma/client/index.d";
-import { Response } from "express";
 
 export const followUser = async () => {
   try {
@@ -12,7 +10,7 @@ export const followUser = async () => {
       },
     });
     console.log(
-      ">>>> file: followUser.ts:21 ~ followUser ~ userWithFollower:",
+      ">>>> file: followUser.ts ~ followUser ~ userWithFollower: ",
       userWithFollower
     );
   } catch (e) {

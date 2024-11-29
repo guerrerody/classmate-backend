@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const searchPeople = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { q } = req.query;
-  console.log(">>>> file: searchForPosts.ts:10 ~ q:", q);
+  console.log(">>>> file: searchForPosts.ts ~ q: ", q);
 
   try {
     const people = await prisma.user.findMany({
@@ -32,7 +33,7 @@ export const searchPeople = async (
         id: req.user?.id,
       },
       select: {
-        followingIDs: true,
+        followingIds: true,
       },
     });
     let updatedUsers: Array<{
@@ -44,19 +45,18 @@ export const searchPeople = async (
 
     if (loggedInUser) {
       const usersWithFollowStatus = people.map((user) => {
-        const isFollowed = loggedInUser.followingIDs.includes(user.id);
+        const isFollowed = loggedInUser.followingIds.includes(user.id);
         return { ...user, isFollowed };
       });
       console.log(
-        ">>>> file: getRandomPeople.ts:41 ~ usersWithFollowStatus ~ usersWithFollowStatus:",
-        loggedInUser.followingIDs
+        ">>>> file: getRandomPeople.ts ~ usersWithFollowStatus ~ usersWithFollowStatus: ",
+        loggedInUser.followingIds
       );
-
       updatedUsers = usersWithFollowStatus;
     }
 
     if (people) {
-      console.log(">>>> file: searchPeople.ts:30 ~ people:", updatedUsers);
+      console.log(">>>> file: searchPeople.ts ~ people: ", updatedUsers);
       return res.status(200).json({ people: updatedUsers });
     }
     res.status(404).json({ people: [], msg: "Not Found" });

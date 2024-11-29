@@ -1,20 +1,17 @@
 import prisma from "../../lib/prisma/init";
 
 export default async function updateFollowerCounts(userId: string) {
-  const followersCount = await prisma.user.count({
-    where: { following: { some: { id: userId } } },
-  });
-  console.log(
-    ">>>> file: updateFollows.ts:7 ~ updateFollowerCounts ~ followersCount:",
-    followersCount
-  );
+  const [followersCount, followingCount] = await Promise.all([
+    prisma.user.count({
+      where: { followings: { some: { id: userId } } },
+    }),
+    prisma.user.count({
+      where: { followers: { some: { id: userId } } },
+    }),
+  ]);
 
-  const followingCount = await prisma.user.count({
-    where: { followers: { some: { id: userId } } },
-  });
-  console.log(
-    ">>>> file: updateFollows.ts:12 ~ updateFollowerCounts ~ followingCount:",
-    followingCount
+  console.log(">>>> file: updateFollows.ts ~ updateFollowerCounts ~ counts: ",
+    { followersCount, followingCount }
   );
 
   await prisma.user.update({
@@ -22,3 +19,4 @@ export default async function updateFollowerCounts(userId: string) {
     data: { followersCount, followingCount },
   });
 }
+

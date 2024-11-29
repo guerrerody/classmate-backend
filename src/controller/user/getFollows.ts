@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../lib/prisma/init";
 
 export const getFollows = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

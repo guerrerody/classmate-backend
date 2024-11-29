@@ -1,27 +1,25 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
-export const like = async (req: any, res: Response, next: NextFunction) => {
-  const { id }: { id: string } = req.query;
-  console.log(">>>> file: likePost.ts:6 ~ like ~ like:");
-  console.log(">>>> file: likePost.ts:6 ~ like ~ id:", id);
+export const like = async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.query.id as string;
+  console.log(">>>> file: likePost.ts:6 ~ like ~ id: ", id);
 
   try {
     const user = await prisma.user.findUnique({
       where: {
         id: req.user.id,
-        like: {
+        likes: {
           some: {
             postId: id,
           },
         },
       },
     });
-    console.log(">>>> file: likePost.ts:20 ~ like ~ user:", user);
+    console.log(">>>> file: likePost.ts ~ like ~ user: ", user);
 
     if (!user) {
-      console.log("yes");
-
       const posts = await prisma.like.create({
         data: {
           user: { connect: { id: req.user.id } },
@@ -33,13 +31,10 @@ export const like = async (req: any, res: Response, next: NextFunction) => {
       const likeToDelete = await prisma.like.findFirst({
         where: {
           userId: req.user.id,
-          postId: req.query.id,
+          postId: id,
         },
       });
-      console.log(
-        ">>>> file: likePost.ts:39 ~ like ~ likeToDelete:",
-        likeToDelete
-      );
+      console.log(">>>> file: likePost.ts ~ like ~ likeToDelete: ", likeToDelete);
 
       if (!likeToDelete) {
         throw new Error("Like not found");
@@ -49,14 +44,11 @@ export const like = async (req: any, res: Response, next: NextFunction) => {
           id: likeToDelete.id,
         },
       });
-
- 
       if (deletePost) {
         return res.status(200).json({ msg: "unliked" });
       }
     }
   } catch (e) {
-
     next(e);
   }
 };

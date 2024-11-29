@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
 
 export const searchForPosts = async (
@@ -7,7 +8,7 @@ export const searchForPosts = async (
   next: NextFunction
 ) => {
   const { q } = req.query;
-  console.log(">>>> file: searchForPosts.ts:10 ~ q:", q);
+  console.log(">>>> file: searchForPosts.ts ~ q:", q);
 
   try {
     const posts = await prisma.post.findMany({
@@ -16,7 +17,7 @@ export const searchForPosts = async (
       },
       orderBy: { id: "desc" },
       select: {
-        like: {
+        likes: {
           select: {
             userId: true,
           },
@@ -31,17 +32,14 @@ export const searchForPosts = async (
         photoUri: true,
         videoViews: true,
         userId: true,
-
-        repostUser: {
+        repostUsers: {
           select: {
             id: true,
           },
           where: {
-            //@ts-ignore
             id: req.user.id,
           },
         },
-
         user: {
           select: {
             id: true,
@@ -62,7 +60,7 @@ export const searchForPosts = async (
         },
         _count: {
           select: {
-            like: true,
+            likes: true,
             comments: true,
           },
         },
@@ -70,7 +68,11 @@ export const searchForPosts = async (
       take: 15,
     });
     if (posts) {
-      return res.status(200).json({ posts });
+      const formattedPosts = posts.map(post => ({
+        ...post,
+        videoViews: post.videoViews ? post.videoViews.toString() : null, // videoViews is BigInt
+      }));
+      return res.status(200).json({ posts: formattedPosts });
     }
     res.status(404).json({ posts: [], msg: "Not Found" });
   } catch (e) {

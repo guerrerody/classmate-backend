@@ -1,9 +1,9 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
+
 import prisma from "../../lib/prisma/init";
 
-export const getGuest = async (req: any, res: Response, next: NextFunction) => {
-  console.log('CALLING GUEST')
-  const { id } = req?.query;
+export const getGuest = async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.query.id as string;
 
   try {
     const loggedInUser = await prisma.user.findUnique({
@@ -11,14 +11,14 @@ export const getGuest = async (req: any, res: Response, next: NextFunction) => {
         id: req.user.id,
       },
       select: {
-        followingIDs: true,
+        followingIds: true,
       },
     });
     if (!loggedInUser) {
       return res.json({ error: "error" });
     }
-    const isFollowed = loggedInUser.followingIDs.includes(req.query.id);
-    console.log(">>>> file: getGuest.ts:20 ~ getGuest ~ isFollowed:", isFollowed)
+    const isFollowed = loggedInUser.followingIds.includes(id);
+    console.log(">>>> file: getGuest.ts ~ getGuest ~ isFollowed: ", isFollowed)
     const user = await prisma.user.findUnique({
       where: {
         id,
@@ -30,10 +30,9 @@ export const getGuest = async (req: any, res: Response, next: NextFunction) => {
         followersCount: true,
         followingCount: true,
         email: true,
-        following: true,
+        followings: true,
         verified: true,
         imageUri: true,
-
         emailIsVerified: true,
       },
     });

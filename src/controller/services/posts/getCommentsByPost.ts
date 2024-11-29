@@ -14,9 +14,9 @@ export const getCommentByPost = async (
       },
       select: {
         id: true,
-        comment:true,
-        createdAt:true,
-        User: {
+        comment: true,
+        createdAt: true,
+        user: {
           select: {
             verified: true,
             imageUri: true,
@@ -27,7 +27,6 @@ export const getCommentByPost = async (
         },
       },
     });
-
     if (comment) {
       res.json({ comment });
     }

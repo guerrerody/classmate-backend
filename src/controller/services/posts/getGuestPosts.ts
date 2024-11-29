@@ -1,18 +1,22 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+
 import prisma from "../../../lib/prisma/init";
+
 export const getGuestPosts = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { skip, take } = req.query;
+  const take = Number(req.query.take) || 10; // Default value: 10
+  const skip = Number(req.query.skip) || 0;  // Default value: 0
+
   try {
     const posts = await prisma.post.findMany({
       where: {
-        userId: req.query.id,
+        userId: req.query.id as string,
       },
       select: {
-        like: {
+        likes: {
           select: {
             userId: true,
           },
@@ -44,8 +48,7 @@ export const getGuestPosts = async (
             imageWidth: true,
           },
         },
-
-        repostUser: {
+        repostUsers: {
           select: {
             id: true,
           },
@@ -53,7 +56,6 @@ export const getGuestPosts = async (
             id: req.user.id,
           },
         },
-
         user: {
           select: {
             id: true,
@@ -65,7 +67,7 @@ export const getGuestPosts = async (
         },
         _count: {
           select: {
-            like: true,
+            likes: true,
             comments: true,
           },
         },
@@ -75,13 +77,16 @@ export const getGuestPosts = async (
           id: "desc",
         },
       ],
-
-      take: Number(take),
-      skip: Number(skip),
+      take,
+      skip,
     });
-    console.log(">>>> file: getMyPosts.ts:55 ~ posts:", posts);
+
     if (posts) {
-      res.status(200).json({ posts });
+      const formattedPosts = posts.map(post => ({
+        ...post,
+        videoViews: post.videoViews ? post.videoViews.toString() : null, // videoViews is BigInt
+      }));
+      return res.status(200).json({ posts: formattedPosts });
     }
   } catch (e) {
     next(e);
