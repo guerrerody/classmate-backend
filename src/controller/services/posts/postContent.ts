@@ -37,6 +37,7 @@ export const postContent = async (
     };
   } = req.body;
   console.log(">>>> body: ", req.body);
+
   const audioUriUpdated = () => {
     if (audioUri) {
       if (audioUri.startsWith("http")) {
@@ -48,6 +49,7 @@ export const postContent = async (
       return undefined;
     }
   };
+
   const videoUriUpdated = () => {
     if (videoUri) {
       if (videoUri.startsWith("http")) {
@@ -69,7 +71,7 @@ export const postContent = async (
       if (data) {
         const { error, html, result, response } = data;
         if (result) {
-          console.log(">>>> file: postContent.ts ~ result:", result);
+          console.log(">>>> file: postContent.ts ~ result: ", result);
 
           const results = result.ogImage
             ? result?.ogImage?.length >= 1
@@ -180,7 +182,6 @@ export const postContent = async (
     } catch (e) {}
   } else {
     try {
-      console.log("reached");
       const post = await prisma.post.create({
         data: {
           user: {
